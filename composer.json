@@ -1,0 +1,19 @@
+{
+    "name": "brajox/pay-by-bill",
+    "description": "API client for PayByBill.com",
+    "license": "MIT",
+    "authors": [
+        {
+            "name": "Timmy Sjöstedt",
+            "email": "git@iostream.se"
+        }
+    ],
+    "require": {
+
+    },
+    "autoload": {
+        "psr-4": {
+            "brajox\\PayByBill\\": "src/"
+        }
+    }
+}
