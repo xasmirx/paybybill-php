@@ -12,6 +12,18 @@ class Client
 		$this->User = $User;
 	}
 
+	public function checkCustomer(Customer $Customer)
+	{
+		$ret = $this->call('CheckCustomer', array(
+			'customer' => $Customer,
+		))->CheckCustomerResult;
+
+		return ClassCaster::Cast(
+			$this->doClassCasting($ret),
+			'CheckCustomerResult'
+		);
+	}
+
 	private function doClassCasting($response)
 	{
 		$classes = array('Customer');
