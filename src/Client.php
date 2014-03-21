@@ -11,4 +11,11 @@ class Client
 		$this->Connector = $Connector;
 		$this->User = $User;
 	}
+
+	private function call($method_name, array $arguments)
+	{
+		$arguments['user'] = $this->User;
+
+		return $this->Connector->call($method_name, $arguments);
+	}
 }
