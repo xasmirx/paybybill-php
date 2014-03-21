@@ -12,6 +12,19 @@ class Client
 		$this->User = $User;
 	}
 
+	private function doClassCasting($response)
+	{
+		$classes = array('Customer');
+
+		foreach ($classes as $class) {
+			if (isset($response->{$class})) {
+				$response->{$class} = ClassCaster::Cast($response->{$class}, $class);
+			}
+		}
+
+		return $response;
+	}
+
 	private function call($method_name, array $arguments)
 	{
 		$arguments['user'] = $this->User;
