@@ -24,9 +24,21 @@ class Client
 		);
 	}
 
+	public function placeReservation(Reservation $Reservation)
+	{
+		$ret = $this->call('PlaceReservation', array(
+			'reservation' => $Reservation,
+		))->PlaceReservationResult;
+
+		return ClassCaster::Cast(
+			$this->doClassCasting($ret),
+			'PlaceReservationResult'
+		);
+	}
+
 	private function doClassCasting($response)
 	{
-		$classes = array('Customer');
+		$classes = array('Customer', 'Reservation');
 
 		foreach ($classes as $class) {
 			if (isset($response->{$class})) {

@@ -64,10 +64,65 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 		$this->assertTrue($ret->wasFound());
 	}
 
+	public function testReservationNotApproved()
+	{
+		$Reservation = new PayByBill\Reservation([
+			'Amount'       => 3141,
+			'CurrencyCode' => 'SEK',
+			'OrderNo'      => 2345,
+			'CustomerNo'   => 100001,
+		]);
+
+		$PlaceReservationResponse = $this->makePlaceReservationResponse(
+			new PlaceReservationResult\NotApproved
+		);
+
+		$this->SoapMock->expects($this->once())
+			->method('PlaceReservation')
+			->with($this->makePlaceReservation($Reservation))
+			->will($this->returnValue($PlaceReservationResponse));
+
+		$ret = $this->Client->placeReservation($Reservation);
+
+		$this->assertInstanceOf('brajox\\PayByBill\\PlaceReservationResult', $ret);
+		$this->assertFalse($ret->wasApproved());
+	}
+
+	public function testReservationApproved()
+	{
+		$Reservation = new PayByBill\Reservation([
+			'Amount'       => 1337,
+			'CurrencyCode' => 'SEK',
+			'OrderNo'      => 1234,
+			'CustomerNo'   => 100002,
+		]);
+
+		$PlaceReservationResponse = $this->makePlaceReservationResponse(
+			new PlaceReservationResult\Approved($Reservation)
+		);
+
+		$this->SoapMock->expects($this->once())
+			->method('PlaceReservation')
+			->with($this->makePlaceReservation($Reservation))
+			->will($this->returnValue($PlaceReservationResponse));
+
+		$ret = $this->Client->placeReservation($Reservation);
+
+		$this->assertInstanceOf('brajox\\PayByBill\\PlaceReservationResult', $ret);
+		$this->assertTrue($ret->wasApproved());
+	}
+
 	private function makeCheckCustomerResponse(PayByBill\CheckCustomerResult $Result)
 	{
 		$Response = new \stdClass;
 		$Response->CheckCustomerResult = $Result;
+		return $Response;
+	}
+
+	private function makePlaceReservationResponse(PayByBill\PlaceReservationResult $Result)
+	{
+		$Response = new \stdClass;
+		$Response->PlaceReservationResult = $Result;
 		return $Response;
 	}
 
@@ -76,6 +131,14 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 		return array(
 			'user' => $this->User,
 			'customer' => $Customer,
+		);
+	}
+
+	private function makePlaceReservation(PayByBill\Reservation $Reservation)
+	{
+		return array(
+			'user' => $this->User,
+			'reservation' => $Reservation,
 		);
 	}
 }
