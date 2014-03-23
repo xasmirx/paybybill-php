@@ -36,9 +36,21 @@ class Client
 		);
 	}
 
+	public function insertInvoice(Invoice $Invoice)
+	{
+		$ret = $this->call('InsertInvoice', array(
+			'invoice' => $Invoice,
+		))->InsertInvoiceResult;
+
+		return ClassCaster::Cast(
+			$this->doClassCasting($ret),
+			'InsertInvoiceResult'
+		);
+	}
+
 	private function doClassCasting($response)
 	{
-		$classes = array('Customer', 'Reservation');
+		$classes = array('Customer', 'Reservation', 'Invoice');
 
 		foreach ($classes as $class) {
 			if (isset($response->{$class})) {

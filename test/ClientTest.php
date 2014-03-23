@@ -112,6 +112,82 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 		$this->assertTrue($ret->wasApproved());
 	}
 
+	public function testInvoiceNotApproved()
+	{
+		$Customer = new PayByBill\Customer;
+		$Customer->CustNo = 100002;
+
+		$Invoice = new PayByBill\Invoice([
+			'Amount' => 85000,
+			'CustNo' => $Customer->CustNo,
+			'OrderNo' => 2345,
+			'InvoiceLines' => array(
+				new PayByBill\InvoiceLine([
+					'ItemID' => 1005,
+					'ItemDescription' => 'Esoteric Scripting Language Web Framework',
+					'GrossAmount' => 85000,
+					'NetAmount' => 68000,
+					'UnitPrice' => 68000,
+					'TaxAmount' => 17000,
+					'TaxPercent' => 25,
+					'Quantity' => 1,
+				]),
+			),
+		]);
+
+		$InsertInvoiceResponse = $this->makeInsertInvoiceResponse(
+			new InsertInvoiceResult\NotApproved($Invoice, $Customer)
+		);
+
+		$this->SoapMock->expects($this->once())
+			->method('InsertInvoice')
+			->with($this->makeInsertInvoice($Invoice))
+			->will($this->returnValue($InsertInvoiceResponse));
+
+		$ret = $this->Client->insertInvoice($Invoice);
+
+		$this->assertInstanceOf('brajox\\PayByBill\\InsertInvoiceResult', $ret);
+		$this->assertFalse($ret->wasApproved());
+	}
+
+	public function testInvoiceApproved()
+	{
+		$Customer = new PayByBill\Customer;
+		$Customer->CustNo = 100002;
+
+		$Invoice = new PayByBill\Invoice([
+			'Amount' => 200,
+			'CustNo' => $Customer->CustNo,
+			'OrderNo' => 1234,
+			'InvoiceLines' => array(
+				new PayByBill\InvoiceLine([
+					'ItemID' => 1001,
+					'ItemDescription' => 'Extensive Unit Testing',
+					'GrossAmount' => 200,
+					'NetAmount' => 160,
+					'UnitPrice' => 80,
+					'TaxAmount' => 20,
+					'TaxPercent' => 25,
+					'Quantity' => 2,
+				]),
+			),
+		]);
+
+		$InsertInvoiceResponse = $this->makeInsertInvoiceResponse(
+			new InsertInvoiceResult\Approved($Invoice, $Customer)
+		);
+
+		$this->SoapMock->expects($this->once())
+			->method('InsertInvoice')
+			->with($this->makeInsertInvoice($Invoice))
+			->will($this->returnValue($InsertInvoiceResponse));
+
+		$ret = $this->Client->insertInvoice($Invoice);
+
+		$this->assertInstanceOf('brajox\\PayByBill\\InsertInvoiceResult', $ret);
+		$this->assertTrue($ret->wasApproved());
+	}
+
 	private function makeCheckCustomerResponse(PayByBill\CheckCustomerResult $Result)
 	{
 		$Response = new \stdClass;
@@ -123,6 +199,13 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 	{
 		$Response = new \stdClass;
 		$Response->PlaceReservationResult = $Result;
+		return $Response;
+	}
+
+	private function makeInsertInvoiceResponse(PayByBill\InsertInvoiceResult $Result)
+	{
+		$Response = new \stdClass;
+		$Response->InsertInvoiceResult = $Result;
 		return $Response;
 	}
 
@@ -139,6 +222,14 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 		return array(
 			'user' => $this->User,
 			'reservation' => $Reservation,
+		);
+	}
+
+	private function makeInsertInvoice(PayByBill\Invoice $Invoice)
+	{
+		return array(
+			'user' => $this->User,
+			'invoice' => $Invoice,
 		);
 	}
 }
