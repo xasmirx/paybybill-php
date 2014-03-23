@@ -1,7 +1,7 @@
 PayByBill
 =========
 
-A PHP library to communicate with [PayByBill](www.paybybill.com)'s web service API.
+A PHP library to communicate with [PayByBill](http://www.paybybill.com)'s web service API.
 
 Example
 -------
