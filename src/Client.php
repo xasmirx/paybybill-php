@@ -62,6 +62,18 @@ class Client
 		);
 	}
 
+	public function acceptAccountTermsAndConditions($CustomerNo, $AcceptID)
+	{
+		$ret = $this->call('AcceptAccountTermsAndConditions', array(
+			'accountTermsAndConditionsRequest' => array(
+				'CustomerNo' => $CustomerNo,
+				'AcceptID' => $AcceptID,
+			),
+		))->AcceptAccountTermsAndConditionsResult;
+
+		return ClassCaster::cast($ret, 'AcceptAccountTermsAndConditionsResult');
+	}
+
 	private function doClassCasting($response)
 	{
 		$classes = array('Customer', 'Reservation', 'Invoice', 'AccountTermsAndConditions');

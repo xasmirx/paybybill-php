@@ -215,6 +215,46 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 		$this->assertEquals($expected_result->AccountTermsAndConditions->TermsAndConditions, $HTML);
 	}
 
+	public function testAcceptTermsAndConditions()
+	{
+		$CustNo = 100002;
+		$AcceptID = '01234567-89ab-cdef-0123-456789abcdef';
+
+		$expected_result = new AcceptAccountTermsAndConditionsResult\Successful;
+		$AcceptAccountTermsAndConditionsResponse = $this->makeAcceptAccountTermsAndConditionsResponse(
+			$expected_result
+		);
+
+		$this->SoapMock->expects($this->once())
+			->method('AcceptAccountTermsAndConditions')
+			->with($this->makeAcceptAccountTermsAndConditions($CustNo, $AcceptID))
+			->will($this->returnValue($AcceptAccountTermsAndConditionsResponse));
+
+		$ret = $this->Client->acceptAccountTermsAndConditions($CustNo, $AcceptID);
+		$this->assertInstanceOf('brajox\\PayByBill\\AcceptAccountTermsAndConditionsResult', $ret);
+		$this->assertTrue($ret->success());
+	}
+
+	public function testAcceptTermsAndConditionsIncorrectID()
+	{
+		$CustNo = 100002;
+		$AcceptID = '00000000-0000-0000-0000-000000000000';
+
+		$expected_result = new AcceptAccountTermsAndConditionsResult\Incorrect;
+		$AcceptAccountTermsAndConditionsResponse = $this->makeAcceptAccountTermsAndConditionsResponse(
+			$expected_result
+		);
+
+		$this->SoapMock->expects($this->once())
+			->method('AcceptAccountTermsAndConditions')
+			->with($this->makeAcceptAccountTermsAndConditions($CustNo, $AcceptID))
+			->will($this->returnValue($AcceptAccountTermsAndConditionsResponse));
+
+		$ret = $this->Client->acceptAccountTermsAndConditions($CustNo, $AcceptID);
+		$this->assertInstanceOf('brajox\\PayByBill\\AcceptAccountTermsAndConditionsResult', $ret);
+		$this->assertFalse($ret->success());
+	}
+
 	private function makeCheckCustomerResponse(PayByBill\CheckCustomerResult $Result)
 	{
 		$Response = new \stdClass;
@@ -240,6 +280,13 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 	{
 		$Response = new \stdClass;
 		$Response->GetAccountTermsAndConditionsResult = $Result;
+		return $Response;
+	}
+
+	private function makeAcceptAccountTermsAndConditionsResponse(PayByBill\AcceptAccountTermsAndConditionsResult $Result)
+	{
+		$Response = new \stdClass;
+		$Response->AcceptAccountTermsAndConditionsResult = $Result;
 		return $Response;
 	}
 
@@ -273,6 +320,17 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 			'user' => $this->User,
 			'accountTermsAndConditionsRequest' => array(
 				'CustomerNo' => $CustNo,
+			),
+		);
+	}
+
+	private function makeAcceptAccountTermsAndConditions($CustNo, $AcceptID)
+	{
+		return array(
+			'user' => $this->User,
+			'accountTermsAndConditionsRequest' => array(
+				'CustomerNo' => $CustNo,
+				'AcceptID' => $AcceptID,
 			),
 		);
 	}
