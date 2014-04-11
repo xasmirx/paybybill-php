@@ -188,6 +188,33 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 		$this->assertTrue($ret->wasApproved());
 	}
 
+	public function testGetTermsAndConditions()
+	{
+		$CustNo = 100002;
+
+		$expected_result = new GetAccountTermsAndConditionsResult\Successful;
+		$GetAccountTermsAndConditionsResponse = $this->makeGetAccountTermsAndConditionsResponse(
+			$expected_result
+		);
+
+		$this->SoapMock->expects($this->once())
+			->method('GetAccountTermsAndConditions')
+			->with($this->makeGetAccountTermsAndConditions($CustNo))
+			->will($this->returnValue($GetAccountTermsAndConditionsResponse));
+
+		$ret = $this->Client->getAccountTermsAndConditions($CustNo);
+		$this->assertInstanceOf('brajox\\PayByBill\\GetAccountTermsAndConditionsResult', $ret);
+		$this->assertTrue($ret->success());
+
+		$Terms = $ret->getTerms();
+		$this->assertInstanceOf('brajox\\PayByBill\\AccountTermsAndConditions', $Terms);
+
+		$ID = $Terms->getID();
+		$HTML = $Terms->getHTML();
+		$this->assertEquals($expected_result->AccountTermsAndConditions->AcceptID, $ID);
+		$this->assertEquals($expected_result->AccountTermsAndConditions->TermsAndConditions, $HTML);
+	}
+
 	private function makeCheckCustomerResponse(PayByBill\CheckCustomerResult $Result)
 	{
 		$Response = new \stdClass;
@@ -206,6 +233,13 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 	{
 		$Response = new \stdClass;
 		$Response->InsertInvoiceResult = $Result;
+		return $Response;
+	}
+
+	private function makeGetAccountTermsAndConditionsResponse(PayByBill\GetAccountTermsAndConditionsResult $Result)
+	{
+		$Response = new \stdClass;
+		$Response->GetAccountTermsAndConditionsResult = $Result;
 		return $Response;
 	}
 
@@ -230,6 +264,16 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 		return array(
 			'user' => $this->User,
 			'invoice' => $Invoice,
+		);
+	}
+
+	private function makeGetAccountTermsAndConditions($CustNo)
+	{
+		return array(
+			'user' => $this->User,
+			'accountTermsAndConditionsRequest' => array(
+				'CustomerNo' => $CustNo,
+			),
 		);
 	}
 }

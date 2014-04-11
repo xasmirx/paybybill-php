@@ -48,9 +48,23 @@ class Client
 		);
 	}
 
+	public function getAccountTermsAndConditions($CustomerNo)
+	{
+		$ret = $this->call('GetAccountTermsAndConditions', array(
+			'accountTermsAndConditionsRequest' => array(
+				'CustomerNo' => $CustomerNo,
+			),
+		))->GetAccountTermsAndConditionsResult;
+
+		return ClassCaster::Cast(
+			$this->doClassCasting($ret),
+			'GetAccountTermsAndConditionsResult'
+		);
+	}
+
 	private function doClassCasting($response)
 	{
-		$classes = array('Customer', 'Reservation', 'Invoice');
+		$classes = array('Customer', 'Reservation', 'Invoice', 'AccountTermsAndConditions');
 
 		foreach ($classes as $class) {
 			if (isset($response->{$class})) {
