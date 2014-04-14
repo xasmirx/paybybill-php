@@ -36,6 +36,18 @@ class Client
 		);
 	}
 
+	public function cancelReservation($CustomerNo, $OrderNo = null)
+	{
+		$ret = $this->call('CancelReservation', array(
+			'cancelReservation' => array(
+				'CustomerNo' => $CustomerNo,
+				'OrderNo' => $OrderNo,
+			),
+		))->CancelReservationResult;
+
+		return ClassCaster::Cast($ret, 'CancelReservationResult');
+	}
+
 	public function insertInvoice(Invoice $Invoice)
 	{
 		$ret = $this->call('InsertInvoice', array(

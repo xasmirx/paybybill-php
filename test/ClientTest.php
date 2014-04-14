@@ -112,6 +112,22 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 		$this->assertTrue($ret->wasApproved());
 	}
 
+	public function testCancelReservation()
+	{
+		$CustomerNo = 100002;
+
+		$CancelReservationResponse = $this->makeCancelReservationResponse(
+			new CancelReservationResult\Successful
+		);
+
+		$this->SoapMock->expects($this->once())
+			->method('CancelReservation')
+			->with($this->makeCancelReservation($CustomerNo))
+			->will($this->returnValue($CancelReservationResponse));
+
+		$ret = $this->Client->cancelReservation($CustomerNo);
+	}
+
 	public function testInvoiceNotApproved()
 	{
 		$Customer = new PayByBill\Customer;
@@ -269,6 +285,13 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 		return $Response;
 	}
 
+	private function makeCancelReservationResponse(PayByBill\CancelReservationResult $Result)
+	{
+		$Response = new \stdClass;
+		$Response->CancelReservationResult = $Result;
+		return $Response;
+	}
+
 	private function makeInsertInvoiceResponse(PayByBill\InsertInvoiceResult $Result)
 	{
 		$Response = new \stdClass;
@@ -303,6 +326,17 @@ class ClientTest extends \PHPUnit_Framework_TestCase
 		return array(
 			'user' => $this->User,
 			'reservation' => $Reservation,
+		);
+	}
+
+	private function makeCancelReservation($CustomerNo)
+	{
+		return array(
+			'user' => $this->User,
+			'cancelReservation' => array(
+				'CustomerNo' => $CustomerNo,
+				'OrderNo' => null,
+			),
 		);
 	}
 
