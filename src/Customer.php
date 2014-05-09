@@ -5,13 +5,13 @@ class Customer extends StrictStruct
 {
 	/** In/Out **/
 	public $Address;
-	public $CountryCode;
-	public $CurrencyCode;
+	public $CountryCode = 'SE';
+	public $CurrencyCode = 'SEK';
 	public $CustNo;
-	public $CustomerCategory = CustomerCategory::NOT_SET;
+	public $CustomerCategory = CustomerCategory::PERSON;
 	public $DirectPhone;
 	public $DistributionBy;
-	public $DistributionType;
+	public $DistributionType = 'Email';
 	public $Email;
 	public $Fax;
 	public $FirstName;
