@@ -70,7 +70,7 @@ $Invoice = new PayByBill\Invoice([
 ]);
 $InsertedInvoice = $PayByBill->insertInvoice($Invoice);
 
-if ( ! $PlacedReservation->wasApproved()) {
+if ( ! $InsertedInvoice->wasApproved()) {
 	die('Could not approve invoice.');
 }
 
