@@ -23,6 +23,19 @@ class Client
 			'CheckCustomerResult'
 		);
 	}
+	
+	//get unpaid invoices for cstomer no
+	public function getLedger($customer_no)
+	{
+		$ret = $this->call('GetLedger', [
+			'customerNo' => $customer_no
+		])->GetLedgerResult;
+
+		return ClassCaster::Cast(
+			$this->doClassCasting($ret),
+			'GetLedgerResult'
+		);
+	}
 
 	public function placeReservation(Reservation $Reservation)
 	{
